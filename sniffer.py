@@ -7,27 +7,27 @@ from scapy.all import *
 from copy import deepcopy
 
 packets = []
+role = 'victim'
 
-def packet_sniffer():
+def packet_sniffer(my_filter, my_prn):
     print('Calling packet sniffer function.')
-    pkt = sniff(filter='tcp and src=', count=5, iface='eth1', prn=packet_storage)
+    pkt = sniff(filter=my_filter, count=5, iface='eth1', prn=my_prn)
 
 def packet_storage(packet):
     packets.append(packet)
 
-def send_back():
-    x = 50
-    y = 5001
+def reroute_packet(packet):
+
+def defense_model(packet):
+    return 0
+
+def send_to_attacker():
+    actual_destination = 'DUP_PL_DEST=169.254.0.7'
     for packet in packets:
-        new_packet = IP()/TCP()
-        new_packet[IP].dst = packet[IP].src
-        new_packet[IP].src = packet[IP].dst
-
-        new_packet[TCP].sport = y
-        new_packet[TCP].dport = x
-
-        x += 10
-        y += 10
+        new_packet = IP()/TCP()/Raw(load=actual_destination)
+        new_packet[IP].dst = '169.254.0.10'
+    
+        new_packet[TCP].dport = 80
 
         print('new_packet:', new_packet.show())
 
@@ -72,6 +72,7 @@ def forward_packets():
         # Source = hardcoded router's IP address 
         forwarded_packet[IP].src = "192.168.56.105"
         forwarded_packet[IP].dst = ip_addr
+        r1 = sr1(new_packet, timeout=5)
         
         forwarded_packet[TCP].sport = packet[TCP].sport
         forwarded_packet[IP].dport = packet[TCP].dport
@@ -81,13 +82,18 @@ def forward_packets():
         r1 = sr1(forwarded_packet, timeout=5)
     
 
+
 def print_packets():
     for packet in packets:
         print('Packet source IP:', packet[IP].src)
     
 
 if __name__=='__main__':
-    packet_sniffer()
-    print_packets()
-    send_back()
+    if(role == 'victim'):
+        local_ip = get_if_addr('eth1')
+        packet_sniffer('src host ' + local_ip + ' and tcp', packet_storage)
+        print_packets()
+        send_to_attacker()
+    elif(role == 'router'):
+        packet_sniffer('dst host ' + local_ip + ' and tcp', reroute_packet)
     
