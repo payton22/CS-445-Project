@@ -5,12 +5,13 @@
 
 from scapy.all import *
 from copy import deepcopy
+import os
 
 role = 'victim'
 
-victim_ip = '169.254.0.6'
+victim_ip = os.environ['victim_ip']
 attacker_ip = '169.254.0.7'
-router_ip = '169.254.0.4'
+router_ip = os.environ['router_ip']
 
 #mypkt = IP(dst=router_ip)/TCP()/Raw(load='test1')
 #r1 = sr1(mypkt,iface='eth1',timeout=2)
