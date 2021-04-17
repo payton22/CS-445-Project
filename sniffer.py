@@ -6,12 +6,13 @@
 from scapy.all import *
 from copy import deepcopy
 import os
+import my_ips
 
 role = 'victim'
 
-victim_ip = os.environ['victim_ip']
-attacker_ip = '169.254.0.7'
-router_ip = os.environ['router_ip']
+#victim_ip = os.environ['victim_ip']
+#attacker_ip = os.environ['attacker_ip']
+#router_ip = os.environ['router_ip']
 
 #mypkt = IP(dst=router_ip)/TCP()/Raw(load='test1')
 #r1 = sr1(mypkt,iface='eth1',timeout=2)
@@ -88,7 +89,7 @@ def reroute_packet(packet):
     forwarded_packet[IP].dport = packet[TCP].dport
 
     print('Forwarded packet:', forwarded_packet.show())
-    r1 = sr1(forwarded_packet, timeout=5,iface='eth1')
+    r1 = sr1(forwarded_packet, timeout=0,iface='eth1')
 
 def defense_model(packet):
     return 0
