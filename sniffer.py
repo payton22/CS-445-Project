@@ -7,8 +7,12 @@ from scapy.all import *
 from copy import deepcopy
 import os
 import my_ips
+import router
 
-role = 'victim'
+role = 'router'
+
+# Global 
+def_model = router.DefenseModel()
 
 #victim_ip = os.environ['victim_ip']
 #attacker_ip = os.environ['attacker_ip']
@@ -21,7 +25,7 @@ role = 'victim'
 #Modular packet sniffing function
 def packet_sniffer(my_filter, my_prn):
     print('Calling packet sniffer function.')
-    pkt = sniff(filter=my_filter, iface='eth1', prn=my_prn)
+    pkt = sniff(filter=my_filter, iface='eth1', prn=reroute_packet)
 
 #Send packets to a destination via the router VM. The router VM
 #simulates a router on the network that is equipped with the
@@ -67,6 +71,7 @@ def append_orig_source(data, orig_source):
     return new_data
 
 def reroute_packet(packet):
+    print('Packet @ reroute_packet stage:', packet.show())
     try:
         data = packet[Raw].load
     except:
@@ -91,12 +96,28 @@ def reroute_packet(packet):
     print('Forwarded packet:', forwarded_packet.show())
     r1 = sr1(forwarded_packet, timeout=0,iface='eth1')
 
+    defense_model(packet)
+
 def defense_model(packet):
-    return 0
+    print('Packet at defense_model stage:', packet)
+
+    if packet is not None:
+        if def_model.check_packet_type(packet):
+            key, payload = def_model.extract_and_hash_packet(packet)
+            def_model.packet_comparison_algorithm(key, payload)
+
+    
+        print('Current packet dictionary: ', def_model.print_contents_of_packet_dictionary())
+
+
+
+
 
 #Parses payload to get the true desination address of the packet.
 #Needed to implement a 'router' that has the defense model.
 def get_packet_destination(data):
+
+    data = data.decode('utf-8')
     # Look for this at the end of the payload
     test_field = "|ORIG_DST="
                                                          
