@@ -71,7 +71,8 @@ def append_orig_source(data, orig_source):
     return new_data
 
 def reroute_packet(packet):
-    print('Packet @ reroute_packet stage:', packet.show())
+    print('Packet @ reroute_packet stage:')
+    print(packet.show())
     try:
         data = packet[Raw].load
     except:
@@ -99,6 +100,10 @@ def reroute_packet(packet):
     defense_model(packet)
 
 def defense_model(packet):
+    print('Getting packet IP')
+    source = packet[IP].src
+    print('Source:', source)
+
     print('Packet at defense_model stage:', packet)
 
     if packet is not None:
@@ -107,7 +112,8 @@ def defense_model(packet):
             def_model.packet_comparison_algorithm(key, payload)
 
     
-        print('Current packet dictionary: ', def_model.print_contents_of_packet_dictionary())
+        print('Printing dictionary:')
+        def_model.print_contents_of_packet_dictionary()
 
 
 
