@@ -19,8 +19,10 @@ class DefenseModel:
          #   entire_payload = None
 
         if Raw in packet:
+            print('Raw is in packet.')
             return True
         else:
+            print('Raw is not in packet.')
             return False
 
         
@@ -46,15 +48,16 @@ class DefenseModel:
         return key_to_compare, entire_payload
 
     def packet_comparison_algorithm(self, key_to_compare, entire_payload):
+        
+        print('In packet comparison algorithm')
         payload_list = entire_payload.split('|')
 
         orig_src = self.find_orig_src(payload_list)
-        print('In packet comparison algorithm')
         if self.packet_dictionary.get(key_to_compare) is not None:
             print('Key is not None')
             stored_payload = self.packet_dictionary[key_to_compare]
             stored_payload_list = stored_payload.split('|')
-            stored_orig_src = self.find_orig.src(stored_payload_list)
+            stored_orig_src = self.find_orig_src(stored_payload_list)
             if orig_src != stored_orig_src:
                 print('Packet is flagged as duplicate.')
             else:

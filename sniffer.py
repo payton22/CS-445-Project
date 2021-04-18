@@ -96,14 +96,13 @@ def reroute_packet(packet):
     print('Forwarded packet:', forwarded_packet.show())
     r1 = sr1(forwarded_packet, timeout=0,iface='eth1')
 
-    defense_model(packet)
+    defense_model(forwarded_packet)
 
 def defense_model(packet):
     print('Getting packet IP')
     source = packet[IP].src
     print('Source:', source)
 
-    print('Packet at defense_model stage:', packet)
 
     if packet is not None:
         if def_model.check_packet_type(packet):
