@@ -5,11 +5,13 @@
 
 from scapy.all import *
 from copy import deepcopy
+from random import randint
 import os
 import my_ips
 import router
+from time import sleep
 
-role = 'router'
+role = 'victim'
 
 # Global 
 def_model = router.DefenseModel()
@@ -151,13 +153,51 @@ def log_packet(packet):
 
 #---
 
+# Simulate external host that sends randomized packets
+def build_packet(external_host_ip, external_ip):
+    RANDOMIZED_WORDS = ['This', 'packet', 'sentence', 'password', 'username', 
+            'advertisement', 'confidential', 'urgent', 'email', 'facebook', 'twitter',
+            'linkedin', 'important', 'details', 'about', 'this', 'warranty', 
+            'family', 'colleague', 'low', 'priority', 'social', 'security', 'number',
+            'is', '555-55-5555', 'credit', 'card', 'number', 'is', '4444-4444-4444-4444', 
+            'bank', 'account', 'number', 'is', '1234567', 'routing', 'number', 'is', 
+            '2222222']
+
+    # Generate a payload with a string of 10 randomized characters
+    MAX = 10
+    payload_string = ''
+    # Loop through 10 times to randomly select the 10 words
+    for i in range(0, MAX):
+        payload_string += RANDOMIZED_WORDS[randint(0, len(RANDOMIZED_WORDS) - 1)]
+        if i != MAX - 1:
+            payload_string += ' '
+
+    
+    attacker_packet = IP(dst=my_ips.router_ip)/TCP(dport=80)/Raw(load=payload_string)
+
+    send_to_attacker(attacker_packet)
+    
+    # Append the original victim destination at end of payload
+
+    packet = IP(src=external_host_ip, dst=external_ip)/TCP(dport=80)/Raw(load=payload_string)
+    send_to_router(packet)
+
+def send_packet(packet):
+    print('Sending external packet')
+    r1 = send(packet, iface='eth1')
+    
+
+
 
 if __name__=='__main__':
     local_ip = get_if_addr('eth1')
-    if(role == 'victim'):
+    if(role == 'xxxxx'):
         packet_sniffer('src host ' + local_ip + ' and tcp', send_to_attacker)
     elif(role == 'router'):
         packet_sniffer('dst host ' + my_ips.router_ip + ' and tcp', reroute_packet)
     elif(role == 'attacker'):
-        packet_sniffer('src host ' + my_ips.victim_ip + ' and tcp', log_packet)
-    
+        packet_sniffer('src host ' + my_ips.victim_ip + ' and tcp', log_packet) 
+    elif role == 'victim':
+        while True:
+            build_packet(my_ips.victim_ip, my_ips.external_host_ip)
+            sleep(5)
