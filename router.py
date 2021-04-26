@@ -50,6 +50,7 @@ class DefenseModel:
     def packet_comparison_algorithm(self, key_to_compare, entire_payload):
         
         print('In packet comparison algorithm')
+        print('Examining packet:', entire_payload)
         payload_list = entire_payload.split('|')
 
         orig_src = self.find_orig_src(payload_list)
@@ -69,14 +70,15 @@ class DefenseModel:
 
 
     def find_orig_src(self, payload_list):
+        print('paylooad list:', payload_list)
         for value in payload_list:
             if 'ORIG_SRC=' in value:
                 orig_src = value.partition('ORIG_SRC=')[2]
                 print('has orig src')
                 return orig_src
-            else:
-                print('Returning None')
-                return None
+            
+        print('Returning None')
+        return None
 
 
     def print_contents_of_packet_dictionary(self):
