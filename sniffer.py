@@ -76,20 +76,18 @@ def reroute_packet(packet):
     #Get destination address that was embedded in the payload
     dst_addr = get_packet_destination(data)
         
-    # IP address is always the first in the list 
-    
+    if(dst_addr != -1):
+        # Source = hardcoded router's IP address 
+        forwarded_packet[IP].src = get_if_addr('eth1')
+        forwarded_packet[IP].dst = dst_addr
         
-    # Source = hardcoded router's IP address 
-    forwarded_packet[IP].src = get_if_addr('eth1')
-    forwarded_packet[IP].dst = dst_addr
-        
-    forwarded_packet[TCP].sport = packet[TCP].sport
-    forwarded_packet[IP].dport = packet[TCP].dport
+        forwarded_packet[TCP].sport = packet[TCP].sport
+        forwarded_packet[IP].dport = packet[TCP].dport
 
-    print('Forwarded packet')
-    r1 = send(forwarded_packet, iface='eth1')
+        print('Forwarded packet')
+        r1 = send(forwarded_packet, iface='eth1')
 
-    defense_model(forwarded_packet)
+        defense_model(forwarded_packet)
 
 def defense_model(packet):
     print('Getting packet IP')
@@ -192,7 +190,14 @@ def send_packet(packet):
 
 if __name__=='__main__':
     local_ip = get_if_addr('eth1')
-    if(role == 'xxxxx'):
+    if(local_ip == my_ips.victim_ip):
+        role = 'victim'
+    elif(local_ip == my_ips.attacker_ip):
+        role = 'attacker'
+    elif(local_ip == my_ips.router_ip):
+        role = 'router'
+
+    if(role == 'victim'):
         packet_sniffer('src host ' + local_ip + ' and tcp', send_to_attacker)
     elif(role == 'router'):
         packet_sniffer('dst host ' + my_ips.router_ip + ' and tcp', reroute_packet)
