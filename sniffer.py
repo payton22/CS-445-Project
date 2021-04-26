@@ -5,10 +5,15 @@
 
 from scapy.all import *
 from copy import deepcopy
+from random import randint
 import os
 import my_ips
+import router
+from time import sleep
 
-role = 'victim'
+
+# Global 
+def_model = router.DefenseModel()
 
 #Modular packet sniffing function
 def packet_sniffer(my_filter, my_prn):
@@ -30,7 +35,7 @@ def send_to_router(packet):
     new_packet = IP(dst=my_ips.router_ip)/TCP(dport=true_dport)/Raw(load=true_load + load_append)
 
     print('Sending packet to router')
-    r1 = sr1(new_packet, timeout=5,iface='eth1')
+    r1 = send(new_packet, iface='eth1')
 
 #Victim functions
 #---
@@ -58,6 +63,8 @@ def append_orig_source(data, orig_source):
     return new_data
 
 def reroute_packet(packet):
+    print('Packet @ reroute_packet stage:')
+    print(packet.show())
     try:
         data = packet[Raw].load
     except:
@@ -80,14 +87,34 @@ def reroute_packet(packet):
     forwarded_packet[IP].dport = packet[TCP].dport
 
     print('Forwarded packet')
-    r1 = sr1(forwarded_packet, timeout=0,iface='eth1')
+    r1 = send(forwarded_packet, iface='eth1')
+
+    defense_model(forwarded_packet)
 
 def defense_model(packet):
-    return 0
+    print('Getting packet IP')
+    source = packet[IP].src
+    print('Source:', source)
+
+
+    if packet is not None:
+        if def_model.check_packet_type(packet):
+            key, payload = def_model.extract_and_hash_packet(packet)
+            def_model.packet_comparison_algorithm(key, payload)
+
+    
+        print('Printing dictionary:')
+        def_model.print_contents_of_packet_dictionary()
+
+
+
+
 
 #Parses payload to get the true desination address of the packet.
 #Needed to implement a 'router' that has the defense model.
 def get_packet_destination(data):
+
+    data = data.decode('utf-8')
     # Look for this at the end of the payload
     test_field = "|ORIG_DST="
                                                          
@@ -107,21 +134,71 @@ def get_packet_destination(data):
 #---
 
 def log_packet(packet):
-    f = open('log_file.txt', 'a')
-    f.write(packet.show())
-    f.write('\n')
-    f.close()
-    print(packet.show())
+    if packet.show() is None:
+        print('logging packet')
+        f = open('log_file.txt', 'a')
+        f.write('\n-------------------- Victim packet --------------------')
+        f.write('\nSource IP: ') 
+        f.write(packet[IP].src)
+        f.write('\nDestination IP: ') 
+        f.write(packet[IP].dst)
+        f.write('\nSource port: ') 
+        f.write(str(packet[TCP].sport))
+        f.write('\nDestination port: ')
+        f.write(str(packet[TCP].dport))
+        f.write('\nPayload: ')
+        f.write(packet[Raw].load.decode('utf-8'))
+        f.write('\n-------------------- End of packet --------------------')
+        f.write('\n')
+        f.close()
 
 #---
+
+# Simulate external host that sends randomized packets
+def build_packet(external_host_ip, external_ip):
+    RANDOMIZED_WORDS = ['This', 'packet', 'sentence', 'password', 'username', 
+            'advertisement', 'confidential', 'urgent', 'email', 'facebook', 'twitter',
+            'linkedin', 'important', 'details', 'about', 'this', 'warranty', 
+            'family', 'colleague', 'low', 'priority', 'social', 'security', 'number',
+            'is', '555-55-5555', 'credit', 'card', 'number', 'is', '4444-4444-4444-4444', 
+            'bank', 'account', 'number', 'is', '1234567', 'routing', 'number', 'is', 
+            '2222222']
+
+    # Generate a payload with a string of 10 randomized characters
+    MAX = 10
+    payload_string = ''
+    # Loop through 10 times to randomly select the 10 words
+    for i in range(0, MAX):
+        payload_string += RANDOMIZED_WORDS[randint(0, len(RANDOMIZED_WORDS) - 1)]
+        if i != MAX - 1:
+            payload_string += ' '
+
+    
+    attacker_packet = IP(dst=my_ips.router_ip)/TCP(dport=80)/Raw(load=payload_string)
+
+    send_to_attacker(attacker_packet)
+    
+    # Append the original victim destination at end of payload
+
+    packet = IP(src=external_host_ip, dst=external_ip)/TCP(dport=80)/Raw(load=payload_string)
+    send_to_router(packet)
+
+def send_packet(packet):
+    print('Sending external packet')
+    r1 = send(packet, iface='eth1')
+    
+
 
 
 if __name__=='__main__':
     local_ip = get_if_addr('eth1')
-    if(role == 'victim'):
+    if(role == 'xxxxx'):
         packet_sniffer('src host ' + local_ip + ' and tcp', send_to_attacker)
     elif(role == 'router'):
-        packet_sniffer('dst host ' + local_ip + ' and tcp', reroute_packet)
+        packet_sniffer('dst host ' + my_ips.router_ip + ' and tcp', reroute_packet)
     elif(role == 'attacker'):
         packet_sniffer('src host ' + my_ips.router_ip + ' and tcp', log_packet)
-    
+    elif role == 'victim':
+        while True:
+            build_packet(my_ips.victim_ip, my_ips.external_host_ip)
+            sleep(5)
