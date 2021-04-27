@@ -11,7 +11,6 @@ import my_ips
 import router
 from time import sleep
 
-role = 'router'
 
 # Global 
 def_model = router.DefenseModel()
@@ -146,10 +145,23 @@ def get_packet_destination(data):
 #---
 
 def log_packet(packet):
-    f = open('log_file.txt', 'a')
-    f.write(packet.show())
-    f.write('\n')
-    f.close()
+    if packet.show() is None:
+        print('logging packet')
+        f = open('log_file.txt', 'a')
+        f.write('\n-------------------- Victim packet --------------------')
+        f.write('\nSource IP: ') 
+        f.write(packet[IP].src)
+        f.write('\nDestination IP: ') 
+        f.write(packet[IP].dst)
+        f.write('\nSource port: ') 
+        f.write(str(packet[TCP].sport))
+        f.write('\nDestination port: ')
+        f.write(str(packet[TCP].dport))
+        f.write('\nPayload: ')
+        f.write(packet[Raw].load.decode('utf-8'))
+        f.write('\n-------------------- End of packet --------------------')
+        f.write('\n')
+        f.close()
 
 #---
 
@@ -196,7 +208,7 @@ if __name__=='__main__':
     elif(role == 'router'):
         packet_sniffer('dst host ' + my_ips.router_ip + ' and tcp', reroute_packet)
     elif(role == 'attacker'):
-        packet_sniffer('src host ' + my_ips.victim_ip + ' and tcp', log_packet) 
+        packet_sniffer('src host ' + my_ips.router_ip + ' and tcp', log_packet)
     elif role == 'victim':
         while True:
             build_packet(my_ips.victim_ip, my_ips.external_host_ip)
