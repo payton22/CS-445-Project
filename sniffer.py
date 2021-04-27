@@ -11,7 +11,7 @@ import my_ips
 import router
 from time import sleep
 
-role = 'victim'
+role = 'router'
 
 # Global 
 def_model = router.DefenseModel()
