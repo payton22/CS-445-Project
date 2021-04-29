@@ -34,24 +34,24 @@ class DefenseModel:
         
         payload_list = entire_payload.split('|')
 
-        orig_src = self.find_orig_src(payload_list)
+        orig_dst = self.find_orig_dst(payload_list)
         if self.packet_dictionary.get(key_to_compare) is not None:
             stored_payload = self.packet_dictionary[key_to_compare]
             stored_payload_list = stored_payload.split('|')
-            stored_orig_src = self.find_orig_src(stored_payload_list)
-            if orig_src != stored_orig_src:
-                print('Pakcet flagged as duplicate')
+            if orig_dst != stored_orig_dst:
+                print('Packet is flagged as duplicate.')
             else:
+                print('Duplicate packet, but it came from the same dst.')
         else:
             print('Adding to dictionary')
             self.packet_dictionary[key_to_compare] = entire_payload
 
 
-    def find_orig_src(self, payload_list):
+    def find_orig_dst(self, payload_list):
         for value in payload_list:
-            if 'ORIG_SRC=' in value:
-                orig_src = value.partition('ORIG_SRC=')[2]
-                return orig_src
+            if 'ORIG_DST=' in value:
+                orig_dst = value.partition('ORIG_DST=')[2]
+                return orig_dst
             
         return None
 
