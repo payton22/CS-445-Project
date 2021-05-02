@@ -1,0 +1,180 @@
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: security social account username security bank 4444-4444-4444-4444 family sentence number|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: password family account password credit twitter is 555-55-5555 facebook routing|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: number advertisement twitter sentence is sentence password family advertisement 4444-4444-4444-4444|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: linkedin advertisement low number 1234567 warranty urgent 2222222 advertisement 555-55-5555|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: number account 4444-4444-4444-4444 number warranty password low sentence advertisement facebook|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: number is is confidential this 1234567 warranty this bank number|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: 555-55-5555 is details warranty 2222222 about low username confidential important|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: security advertisement number account urgent number is is account credit|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: twitter linkedin number about about 4444-4444-4444-4444 details is advertisement urgent|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: low number number number packet is 4444-4444-4444-4444 is number details|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: is about advertisement urgent sentence is password is advertisement warranty|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: credit is about twitter is This number advertisement linkedin important|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: low security low social facebook family priority sentence details account|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: number account colleague family this 2222222 urgent urgent about number|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: linkedin social number number urgent colleague twitter low security confidential|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: facebook urgent facebook social confidential about 2222222 card packet this|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: routing bank credit twitter This routing advertisement packet bank number|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: credit warranty is important number facebook social 1234567 number this|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: twitter routing number account is security number 1234567 facebook warranty|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: family bank family credit card 555-55-5555 important is 4444-4444-4444-4444 is|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: username card username bank advertisement confidential email 2222222 is number|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: twitter This 1234567 is email about This bank important low|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: 4444-4444-4444-4444 is This priority This 2222222 facebook linkedin number is|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: number important is is urgent email sentence important username credit|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: linkedin 2222222 urgent social 4444-4444-4444-4444 this email linkedin priority security|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: about details urgent confidential sentence number priority low linkedin packet|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: family packet account facebook low details is security priority family|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: important username 2222222 4444-4444-4444-4444 2222222 password card is number is|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: priority This low 555-55-5555 card number details is important number|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------
+
+--------------- Alert - Duplicate packet detected! ---------------
+Destination 1: 192.168.56.103
+Destination 2: 192.168.56.105
+Payload data: advertisement important about password linkedin account priority bank twitter email|ORIG_SRC=192.168.56.107|ORIG_DST=192.168.56.103|ORIG_SRC=192.168.56.105
+---------------             End of Alert           ---------------

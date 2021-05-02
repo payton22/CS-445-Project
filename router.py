@@ -9,7 +9,6 @@ class DefenseModel:
     # Avoids irrelevant packets, such as ICMP and ARP packets
     def check_packet_type(self, packet):
 
-        print('check packet:')
         print(packet.show())
         print('next step')
         # Returns None if no payload data
@@ -61,6 +60,7 @@ class DefenseModel:
             stored_orig_dst = self.find_orig_dst(stored_payload_list)
             if orig_dst != stored_orig_dst:
                 print('Packet is flagged as duplicate.')
+                self.generate_alert(orig_dst, stored_orig_dst, entire_payload)
             else:
                 print('Duplicate packet, but it came from the same dst.')
         else:
@@ -68,6 +68,19 @@ class DefenseModel:
             self.packet_dictionary[key_to_compare] = entire_payload
             print('I\'ve never seen this packet before. I will add it to the dictionary')
 
+
+    def generate_alert(self, orig_dst, stored_orig_dst, entire_payload):
+        f = open('alert.txt', 'a')
+        f.write('\n--------------- Alert - Duplicate packet detected! ---------------')
+        f.write('\nDestination 1: ')
+        f.write(orig_dst)
+        f.write('\nDestination 2: ')
+        f.write(stored_orig_dst)
+        f.write('\nPayload data: ')
+        f.write(entire_payload)
+        f.write('\n---------------             End of Alert           ---------------')
+        f.write('\n')
+        f.close()
 
     def find_orig_dst(self, payload_list):
         print('paylooad list:', payload_list)

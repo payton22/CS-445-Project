@@ -17,7 +17,6 @@ def_model = router.DefenseModel()
 
 #Modular packet sniffing function
 def packet_sniffer(my_filter, my_prn):
-    print('Calling packet sniffer function.')
     pkt = sniff(filter=my_filter, iface='eth1', prn=my_prn)
 
 #Send packets to a destination via the router VM. The router VM
@@ -34,7 +33,6 @@ def send_to_router(packet):
 
     new_packet = IP(dst=my_ips.router_ip)/TCP(dport=true_dport)/Raw(load=true_load + load_append)
 
-    print('Sending packet to router')
     r1 = send(new_packet, iface='eth1')
 
 #Victim functions
@@ -72,7 +70,6 @@ def append_orig_source(data, orig_source):
     return new_data
 
 def reroute_packet(packet):
-    print('Packet @ reroute_packet stage:')
     print(packet.show())
     try:
         data = packet[Raw].load
@@ -80,6 +77,7 @@ def reroute_packet(packet):
         data = ''.encode("utf-8")
     data = append_orig_source(data, packet[IP].src)
 
+    
     forwarded_packet = IP()/TCP()/Raw(load=data)
 
     #Get destination address that was embedded in the payload
@@ -93,15 +91,12 @@ def reroute_packet(packet):
         forwarded_packet[TCP].sport = packet[TCP].sport
         forwarded_packet[TCP].dport = packet[TCP].dport
 
-        print('Forwarded packet')
         r1 = send(forwarded_packet, iface='eth1')
 
         defense_model(forwarded_packet)
 
 def defense_model(packet):
-    print('Getting packet IP')
     source = packet[IP].src
-    print('Source:', source)
 
 
     if packet is not None:
@@ -110,7 +105,6 @@ def defense_model(packet):
             def_model.packet_comparison_algorithm(key, payload)
 
     
-        print('Printing dictionary:')
         def_model.print_contents_of_packet_dictionary()
 
 
@@ -138,7 +132,6 @@ def get_packet_destination(data):
 #---
 
 def log_packet(packet):
-    print('help me!')
     if packet.show() is None:
         print('logging packet')
         f = open('log_file.txt', 'a')
