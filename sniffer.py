@@ -204,6 +204,8 @@ if __name__=='__main__':
         role = 'attacker'
     elif(local_ip == my_ips.router_ip):
         role = 'router'
+    elif local_ip == my_ips.external_host_ip:
+        role = 'external_host'
 
     if(role == 'victim'):
         packet_sniffer('src host ' + my_ips.router_ip + ' and tcp and not tcp[tcpflags] & (tcp-rst) != 0', send_to_attacker)
@@ -215,3 +217,4 @@ if __name__=='__main__':
     elif role == 'external_host':
         while True:
             build_packet(my_ips.external_host_ip)
+            sleep(2)

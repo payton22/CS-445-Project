@@ -38,6 +38,7 @@ class DefenseModel:
         if self.packet_dictionary.get(key_to_compare) is not None:
             stored_payload = self.packet_dictionary[key_to_compare]
             stored_payload_list = stored_payload.split('|')
+            stored_orig_dst = self.find_orig_dst(stored_payload_list)
             if orig_dst != stored_orig_dst:
                 print('Packet is flagged as duplicate.')
                 self.generate_alert(orig_dst, stored_orig_dst, entire_payload)
